@@ -1,0 +1,35 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+  application:
+    name: transaction_service
+  datasource:
+    url: jdbc:mysql://localhost:3306/transactions_service  # Changed to underscore for consistency
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: transaction-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  sql:
+    init:
+      mode: always
+server:
+  port: 8089
+kafka:
+  topic:
+    request-account: request-account
+    response-account: response-account

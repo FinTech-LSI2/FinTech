@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur de Crédit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --secondary-color: #4ecdc4;
+            --dark-color: #2d3436;
+            --light-color: #f9f9f9;
+            --gray-color: #636e72;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .simulator-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .simulator-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .simulator-header h2 {
+            color: var(--dark-color);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            color: var(--gray-color);
+            font-weight: 500;
+        }
+
+        .slider-container {
+            position: relative;
+            width: 100%;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 5px;
+            border-radius: 5px;
+            background: #dfe6e9;
+            outline: none;
+            margin: 10px 0;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .value-display {
+            background: var(--light-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            color: var(--primary-color);
+            min-width: 100px;
+            text-align: right;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .simulate-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .simulate-button:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+        }
+
+        .result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--light-color);
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .result h3 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+        }
+
+        .mensualite {
+            font-size: 2rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .disclaimer {
+            margin-top: 1.5rem;
+            text-align: center;
+            color: var(--gray-color);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 600px) {
+            .simulator-container {
+                padding: 1.5rem;
+            }
+
+            .simulator-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="simulator-container">
+    <div class="simulator-header">
+        <h2>Simulateur de Crédit</h2>
+        <p>Calculez vos mensualités en quelques clics</p>
+    </div>
+
+    <form th:action="@{/simulate}" th:object="${simulation}" method="post">
+        <div class="form-group">
+            <label>
+                <span>Montant du prêt</span>
+                <span class="value-display">
+                        <span id="montantValue">500000</span> Dhs
+                    </span>
+            </label>
+            <div class="slider-container">
+                <input type="range" th:field="*{montant}"
+                       min="10000" max="1000000" step="10000"
+                       oninput="updateValue('montantValue', this.value)">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <span>Durée du prêt</span>
+                <span class="value-display">
+                        <span id="dureeValue">25</span> Ans
+                    </span>
+            </label>
+            <div class="slider-container">
+                <input type="range" th:field="*{duree}"
+                       min="5" max="30" step="1"
+                       oninput="updateValue('dureeValue', this.value)">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <span>Différé</span>
+                <span class="value-display">
+                        <span id="differeValue">0</span> Mois
+                    </span>
+            </label>
+            <div class="slider-container">
+                <input type="range" th:field="*{differe}"
+                       min="0" max="12" step="1"
+                       oninput="updateValue('differeValue', this.value)">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <span>Taux d'intérêt</span>
+                <span class="value-display">
+                        <span id="tauxValue">4.99</span> %
+                    </span>
+            </label>
+            <div class="slider-container">
+                <input type="range" th:field="*{taux}"
+                       min="1" max="10" step="0.01"
+                       oninput="updateValue('tauxValue', this.value)">
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button type="submit" class="simulate-button">Calculer ma mensualité</button>
+        </div>
+    </form>
+
+    <div class="result" th:if="${simulation.mensualite > 0}">
+        <h3>Votre mensualité estimée</h3>
+        <div class="mensualite">
+            <span th:text="${#numbers.formatDecimal(simulation.mensualite, 0, 2)}">0.00</span> Dhs
+        </div>
+    </div>
+
+    <p class="disclaimer">
+        Le résultat de cette simulation est non contractuel et revêt un caractère strictement informatif
+    </p>
+</div>
+
+<script>
+    function updateValue(elementId, value) {
+        const element = document.getElementById(elementId);
+        if (elementId === 'tauxValue') {
+            element.textContent = Number(value).toFixed(2);
+        } else {
+            element.textContent = Number(value).toLocaleString('fr-FR');
+        }
+    }
+
+    // Initialiser les valeurs au chargement
+    window.onload = function() {
+        const inputs = document.querySelectorAll('input[type="range"]');
+        inputs.forEach(input => {
+            const valueId = input.getAttribute('th:field').replace('*{', '').replace('}', '') + 'Value';
+            updateValue(valueId, input.value);
+        });
+    }
+</script>
+</body>
+</html>

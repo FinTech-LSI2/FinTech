@@ -1,0 +1,13 @@
+package org.fstt.transactionclient.repository;
+
+import org.fstt.transactionclient.models.Transaction;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface TransactionRepository extends JpaRepository<Transaction, String> {
+    List<Transaction> findByRib(String rib);
+
+
+}
+
